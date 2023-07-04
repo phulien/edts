@@ -645,15 +645,7 @@ get_module_source_from_info(MInfo) ->
 get_module_source_from_beam(M) ->
   try
     ModPath = code:where_is_file(atom_to_list(M) ++ ".beam"),
-    SrcFile = atom_to_list(M) ++ ".erl",
-    SplitPath = filename:split(filename:dirname(ModPath)),
-    [Dir|Rest] = lists:reverse(SplitPath),
-    SrcAbs =
-      case Dir of
-        "ebin" -> filename:join(lists:reverse(Rest) ++ ["src", SrcFile]);
-        _      -> filename:join(SplitPath ++ [SrcFile])
-      end,
-    true = filelib:is_regular(SrcAbs),
+    {ok, SrcAbs} = filelib:find_source(ModPath),
     {ok, SrcAbs}
   catch
     error:_ -> {error, not_found}
