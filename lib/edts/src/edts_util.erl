@@ -72,7 +72,12 @@ expand_code_paths(ProjectRoot, LibDirs) ->
   RootPaths ++ LibPaths.
 
 expand_code_path(Root, Dir) ->
-  Fun = fun(F) -> [filename:join(F, "ebin"), filename:join(F, "test")] end,
+  Fun = fun(F) -> [filename:join(F, "ebin"),
+                   filename:join(F, "test"),
+                   filename:join(F, "common_test"),
+                   filename:join(F, "eunit"),
+                   filename:join(F, "priv")
+                  ] end,
   lists:flatmap(Fun, filelib:wildcard(filename:join([Root, Dir, "*"]))).
 
 filename_to_module(Filename) ->
@@ -217,4 +222,3 @@ project_lib_file_p_test_() ->
 %%% allout-layout: t
 %%% erlang-indent-level: 2
 %%% End:
-
