@@ -29,7 +29,7 @@ rel/releases:
 
 deps/mochiweb/src:
 	$(GIT) clone "https://github.com/mochi/mochiweb" deps/mochiweb
-	cd deps/mochiweb && $(GIT) checkout --detach 835b107a4da4550080d032623ff6ae9a18d02c37
+	cd deps/mochiweb && $(GIT) checkout --detach 611254eb941e502227f221667389b98fd8e72d6f
 deps/meck/src:
 	$(GIT) clone "https://github.com/eproxus/meck" deps/meck
 	cd deps/meck && $(GIT) checkout --detach cc47aab4b64a46a5409c1a93353d44a367b41454
@@ -116,4 +116,3 @@ $(OTP_TESTS):
 	$(DOCKER) build \
 	--ulimit nofile=4096 \
 	-f test_data/manual/Dockerfile.$@ .
-
