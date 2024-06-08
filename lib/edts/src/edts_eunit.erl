@@ -96,7 +96,11 @@ do_run_tests(Module) ->
 
 -spec get_module_tests(module()) -> list().
 get_module_tests(Module) ->
-  eunit_data:get_module_tests(Module).
+  try
+    eunit_data:get_module_tests(Module)
+  catch
+    _:_ -> []
+  end.
 
 filter_module_tests(Module, Tests) ->
   Fun = fun({_Type, TestModule, _Fun} = Test, Acc) when TestModule =:= Module ->
