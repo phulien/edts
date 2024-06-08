@@ -119,4 +119,3 @@ $(OTP_TESTS):
 	$(DOCKER) build \
 	--ulimit nofile=4096 \
 	-f test_data/manual/Dockerfile.$@ .
-
