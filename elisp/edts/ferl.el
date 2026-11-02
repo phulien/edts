@@ -161,6 +161,28 @@ of that function, otherwise nil."
   (while (not (erlang-get-function-name))
     (erlang-beginning-of-function -1)))
 
+(defun ferl-goto-next-function-clause ()
+  "Move point to the start of the next function clause after the
+current line, skipping lines inside strings. Return point, or nil
+and leave point unchanged if there is no such clause."
+  ;; (erlang-beginning-of-function -1) can't be used for this. Searching
+  ;; forward, it stops on lines inside strings (e.g. -doc """ ... """),
+  ;; and the next call steps back out of the string and lands on the
+  ;; same line again, looping forever.
+  (let ((case-fold-search nil)
+        (regexp (concat "^" erlang-atom-regexp "\\s *("))
+        (start (point))
+        found)
+    (end-of-line)
+    (while (and (not found) (re-search-forward regexp nil t))
+      (let ((pos (match-beginning 0)))
+        ;; syntax-ppss leaves point at pos.
+        (if (nth 8 (syntax-ppss pos))
+            (end-of-line)
+          (setq found pos))))
+    (goto-char (or found start))
+    found))
+
 (defun ferl-local-functions ()
   "Enumerate all erlang functions in current buffer. Return a list
 of (function-name . starting-point)."
@@ -168,12 +190,13 @@ of (function-name . starting-point)."
     (goto-char (point-min))
     (let ((funs ())
           (exports   (erlang-get-export)))
-      (while (erlang-beginning-of-function -1)
+      (while (ferl-goto-next-function-clause)
         (let* ((start    (point))
                (name      (erlang-get-function-name))
                (arity     (erlang-get-function-arity))
                (signature (format "%s/%s" name arity)))
-          (when name
+          ;; Record a multi-clause function once, at its first clause.
+          (when (and name (not (equal signature (caar funs))))
             ;; (when (erlang-function-exported-p name arity exports)
             ;;   (setq signature (concat signature "*")))
             (setq funs (cons (cons signature start) funs)))))
@@ -183,7 +206,7 @@ of (function-name . starting-point)."
   (save-excursion
     (goto-char (point-min))
     (let ((funs ()))
-      (while (erlang-beginning-of-function -1)
+      (while (ferl-goto-next-function-clause)
         (let ((name     (erlang-get-function-name)))
           (when name (add-to-list 'funs name))))
       funs)))
